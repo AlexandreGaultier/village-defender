@@ -6,6 +6,7 @@
           v-for="player in players" 
           :key="player.id" 
           :player="player"
+          @dice-rolled="handleDiceRolled"
         />
       </div>
       
@@ -69,7 +70,9 @@ import TurnIndicator from './TurnIndicator.vue'
 import ResourcePanel from './ResourcePanel.vue'
 import PlayerCard from './PlayerCard.vue'
 import type { Resource, Player, GameState, Card } from '../types/game'
+import { useGameStore } from '../stores/gameStore'
 
+const store = useGameStore()
 const gameState = ref<GameState>({
   currentDay: 1,
   timeSlots: [false, false, false],
@@ -109,8 +112,16 @@ const movePlayer = (cardName: string) => {
   const activePlayer = players.value.find(p => p.id === gameState.value.activePlayerId)
   if (activePlayer) {
     activePlayer.position = cardName
-    nextPlayer()
+    store.handleLocationAction(cardName)
+    
+    if (!store.waitingForDiceRoll) {
+      nextPlayer()
+    }
   }
+}
+
+const handleDiceRolled = () => {
+  nextPlayer()
 }
 
 const nextPlayer = () => {
@@ -148,8 +159,10 @@ const startEveningCouncil = () => {
   gameState.value.canMove = true
   gameState.value.activePlayerId = players.value[0].id
   
-  players.value.forEach((p, index) => {
-    p.isActive = index === 0
+  // Réinitialiser la position des joueurs
+  players.value.forEach(player => {
+    player.position = 'Mairie'
+    player.isActive = player.id === players.value[0].id
   })
 }
 </script>

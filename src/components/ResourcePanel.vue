@@ -1,15 +1,13 @@
 <script setup lang="ts">
-import { type Resource } from '../types/game'
+import { useGameStore } from '../stores/gameStore'
 
-defineProps<{
-  resources: Resource[]
-}>()
+const store = useGameStore()
 </script>
 
 <template>
   <div class="resources-panel">
     <div class="resource-gauges">
-      <div v-for="resource in resources" :key="resource.name" class="gauge">
+      <div v-for="resource in store.resources" :key="resource.name" class="gauge">
         <h4>{{ resource.name }}</h4>
         <div class="gauge-bar">
           <div class="gauge-fill" 
